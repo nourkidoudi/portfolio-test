@@ -45,7 +45,7 @@ jobs:
         run: |
           docker compose pull
           docker compose up -d
-            - name: Health check
+      - name: Health check
         shell: pwsh
         run: |
           $healthy = $false
@@ -65,4 +65,3 @@ jobs:
             docker compose logs
             throw "Health check failed: http://localhost:3000"
           }
-          
