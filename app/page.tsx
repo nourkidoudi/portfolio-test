@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-const owner = "nour kidoudi";
+const owner = "test";
 
 const certifications = [
   { title: "AWS Cloud Practitioner", year: "2024" },
