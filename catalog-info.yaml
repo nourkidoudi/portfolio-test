@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: portfolio-nextjs
+  description: Portfolio Next.js de nour kidoudi
+  annotations:
+    github.com/project-slug: nourkidoudi/portfolio-test
+    github.com/workflows: build-publish-deploy
+spec:
+  type: website
+  lifecycle: production
+  owner: user:guest

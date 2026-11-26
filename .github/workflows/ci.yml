@@ -1,0 +1,55 @@
+
+name: build-publish-deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version de l'image (ex: v1, v2)"
+        required: false
+
+env:
+  IMAGE_NAME: portfolio-nextjs
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.v.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        run: echo "tag=${{ inputs.version || format('v{0}', github.run_number) }}" >> $GITHUB_OUTPUT
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.v.outputs.tag }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+
+  deploy-local:
+    needs: build-push
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Déployer
+        env:
+          DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          TAG: ${{ needs.build-push.outputs.tag }}
+        run: |
+          docker compose pull
+          docker compose up -d
+      - name: Health check
+        run: |
+          for i in $(seq 1 20); do
+            curl -fs http://localhost:3000 >/dev/null && echo "OK : http://localhost:3000" && exit 0
+            sleep 3
+          done
+          docker compose logs; exit 1
+          
