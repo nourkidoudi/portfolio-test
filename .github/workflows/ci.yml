@@ -46,7 +46,7 @@ jobs:
           docker compose pull
           docker compose up -d
       - name: Health check
-        shell: pwsh
+        shell: powershell
         run: |
           $healthy = $false
           for ($i = 0; $i -lt 20; $i++) {
